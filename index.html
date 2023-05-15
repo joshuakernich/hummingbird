@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HummingBird</title>
+  <style type="text/css">
+
+    @font-face {
+      font-family: TypewriterFont;
+      src: url(F25_executive.otf);
+    }
+
+    @keyframes sprite-scroll{
+      0%{
+        left:  0%;
+      } 
+      100%{
+        left:  -900%;
+      }
+    }
+
+    .static-overlay, .bg-overlay{
+      position: fixed;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      bottom: 0px;
+      background-image:url('./static.gif');
+      background-size: cover;
+    }
+
+    .bg-overlay{
+      background-image: url('./fire.gif');
+      mix-blend-mode: lighten;
+    }
+
+    .bird-inner{
+      width: 320px;
+      height: 230px;
+      position: absolute;
+
+      overflow: hidden;
+      background: url('./sprite-bird.png');
+      background-size: 0px;
+
+      
+      left: -270px;
+      top: -22px;
+    }
+
+    .bird{
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 0px;
+      right: 0px;
+
+      
+    }
+
+    .bird-fg{
+      
+      width: calc(9 * 320px);
+      height: 230px;
+      background: url('./sprite-bird.png');
+      position: absolute;
+      top: 0px;
+      left: 0px;
+
+      animation: sprite-scroll;
+      animation-duration: 0.2s;
+      /*animation-iteration-count: infinite;*/
+      animation-timing-function: steps(9);
+      mix-blend-mode: multiply;
+
+      display: none;
+
+    }
+
+    .bird-bg{
+      
+      width: calc(9 * 320px);
+      height: 230px;
+      -webkit-mask-image: url('./sprite-bird.png');
+      position: absolute;
+      top: 0px;
+      left: -200%;
+
+      
+      background-color: white;
+      
+
+    }
+
+    .bird[flappin] .bird-bg{
+      animation: sprite-scroll;
+      animation-duration: 0.3s;
+      animation-iteration-count: infinite;
+      animation-timing-function: steps(9);
+    }
+
+
+
+    .bird-fill{
+      background: red;
+      background-size: 800px;
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+      width: 100%;
+      height: 100%;
+    }
+
+    body{
+      background-image: url('./bg.gif');
+      background-image: url('./AI-network.mp4');
+      background: blue;
+
+      padding: 0px;
+      margin: 0px;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+
+      font-family: TypewriterFont;
+
+      cursor: none;
+    }
+
+    .floor{
+      position: fixed;
+      bottom: 0px;
+      left: 0px;
+      right: 0px;
+      height: 100px;
+      background: #ddddff;
+    }
+
+    h1{
+      position: fixed;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      text-align: center;
+      line-height: 70vh;
+      font-size: 70px;
+      color: #DDDDFF;
+    }
+
+  </style>
+  <script type="text/javascript" src='./jq.js'></script>
+  <script type="text/javascript">
+    $(function(){
+
+      const MODE = [
+        
+        { //CITY
+          bg:'url(./cityscape-loop.webp)',
+          bgOverlay:'url(vhs.gif)',
+          bird:'#ddddff',
+          ground:'#ddddff',
+          h:'Hummingbird Sessions',
+        },
+        { //CITY
+          bg:'url(./cityscape-loop.webp)',
+          
+          bird:'#ddddff',
+          ground:'#ddddff',
+        },
+        { //FEATHERS
+          bg:'url(feathers.gif)',
+          bird: '#ddd',
+          ground: '#ddd',
+        },
+        { //FEAR
+          bg:'url(fear.gif)',
+          bird:'white',
+          ground:'white',
+        },
+        { // RAGE
+          bg:'url(burnt-wood.jpeg)',
+          bgOverlay:'url(fire.gif)',
+          bird:'black',
+          ground:'black',
+        },
+        
+        
+        { //SADNESS
+          bg:'url(sad-disney.gif)',
+          bird:'#888899',
+          ground:'#888899',
+        },
+        { //LOVE
+          bg:'url(love.gif)',
+          bird:'red',
+          ground:'red',
+        },
+        { //CHATGPT
+          bg:'url(ai-face.gif)',
+          bird:'#bf02ff',
+          ground:'#bf02ff',
+          bgSize: '65%',
+        },
+        { //MUSIC
+          bg:'url(equalizer.gif)',
+          bird:'#bbff02',
+          ground:'#bbff02',
+        },
+        { //FLOWER
+          bg:'url(dancing-flower.gif)',
+          bird:'black',
+          ground:'black',
+          bgSize:'70%',
+        },
+        
+
+      ]
+
+      var parallax = 0;
+      var x = 300;
+      var y = 0;
+
+      var tx = 0;
+      var ty = 0;
+      var timeClick = 0;
+
+      var sx = 0;
+      var sy = 0;
+
+      function Bird(){
+        var $el = $('.bird');
+        
+
+        function tick(){
+          //x = (x+tx)/2;
+          //y = (y+ty)/2;
+
+          sy += 10;
+          x += sx;
+          y += sy;
+
+
+
+          if(sy>100) sy = 100; //max fallin
+          if(y> $('.floor').offset().top-150){
+            timeClick = 0;
+            y = $('.floor').offset().top-150; //max y pos
+            sy = 0;
+            sx = 0;
+          } else {
+            parallax -= 3;
+            $('body').css({'background-position-x':parallax})
+          }
+
+          $el.css({left:x,top:y,transform:'rotate('+sy*0.2+'deg)'});
+        }
+
+       setInterval(tick,50);
+      }
+
+      new Bird();
+
+      $( window ).mousemove(function(e){
+        //tx = e.pageX;
+        //ty = e.pageY;
+      })
+
+      $(window).click(function(e){
+
+
+        flap();
+        
+
+
+      })
+
+      function flap(){
+
+        if(y<100) return;
+
+        timeClick = new Date().getTime();
+        sy = -50;
+        sx = -x + Math.random() * $(window).innerWidth();
+        if(sx > 20) sx = 20;
+        if(sx < -20) sx = -20;
+      }
+
+      let intFlapping = -1;
+
+      function setFlapping(b){
+        clearInterval(intFlapping);
+        if(b) intFlapping = setInterval(flap,300);
+      }
+
+      $(document).keydown((e)=>{
+
+        if(e.keyCode == 37) doMode(nMode-1);
+        else if(e.keyCode == 39) doMode(nMode+1);
+        else if(e.keyCode == 38) setFlapping(true);
+        else if(e.keyCode == 40) setFlapping(false);
+        else doMode(e.which-49);
+
+        
+      })
+
+
+      let nMode = 0;
+
+      function doMode(n){
+        nMode = n;
+        let m = MODE[nMode];
+
+
+        $('h1').text(m.h?m.h:'');
+
+        $('body').css('background',m.bg);
+        $('body').css('background-size',m.bgSize?m.bgSize:'cover');
+        $('body').css('background-position-y','center');
+        $('body').css({'background-position-x':parallax})
+
+        
+        $('.bg-overlay').css('background-image',m.bgOverlay?m.bgOverlay:'none');
+
+        $('.bird-fill').css('background',m.bird);
+        $('.bird-fill').css('background-size',m.birdSize?m.birdSize:'cover');
+
+        $('.floor').css('background',m.ground);
+        $('.floor').css('background-size',m.groundSize?m.groundSize:'cover');
+
+        $('.static-overlay').css({opacity:1}).delay(100).animate({opacity:0},100);
+      }
+
+      doMode(0);
+
+      function tick(){
+        var now = new Date().getTime();
+
+        if(now < timeClick + 1000 ) $('.bird').attr('flappin',true);
+        else $('.bird').removeAttr('flappin');
+
+        $('h1').css({top:-2 + Math.random()*4, left:-2+Math.random()*4})
+      }
+
+      setInterval(tick,100);
+
+      /*navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false,
+      })
+        .then(function(stream) {
+          const audioContext = new AudioContext();
+          const analyser = audioContext.createAnalyser();
+          const microphone = audioContext.createMediaStreamSource(stream);
+          const scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
+
+          analyser.smoothingTimeConstant = 0.8;
+          analyser.fftSize = 1024;
+
+          microphone.connect(analyser);
+          analyser.connect(scriptProcessor);
+          scriptProcessor.connect(audioContext.destination);
+          scriptProcessor.onaudioprocess = function() {
+            const array = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(array);
+            const arraySum = array.reduce((a, value) => a + value, 0);
+            const average = arraySum / array.length;
+            
+            if(average>60) flap();
+          };
+        })
+        .catch(function(err) {
+          console.error(err);
+        });*/
+    })
+  </script>
+</head>
+<body>
+  <!--video  muted autoplay loop style="width:100vw;height:100vw">
+    <source src="./AI-network.mp4" type="">
+  </video-->
+
+  <div class="bg-overlay"></div>
+  <h1>Hummingbird Sessions</h1>
+  <div class="bird">
+    <div class="bird-inner">
+      <div class="bird-bg">
+        <div class="bird-fill"></div>
+      </div>
+      <div class="bird-fg">
+      </div>
+   </div>
+  </div>
+
+   <div class="floor"></div>
+   <div class="static-overlay"></div>
+
+</body>
+</html>
