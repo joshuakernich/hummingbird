@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<style type="text/css">
+		body{
+			padding: 0px;
+			margin: 0px;
+			background-image: url(bg-mega.jpg);
+			background-size: 100%;
+			background-position-x: center;
+			background-position-y: 0px;
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+		}
+
+		hidden{
+			display: none;
+		}
+
+		plant{
+			position: absolute;
+			width: 100vh;
+			height: 200vh;
+			bottom: 0px;
+		}
+
+		svg{
+			position: absolute;
+			width: 100%;
+			height: 100%;
+		}
+
+		leaf{
+			content: "";
+			position: absolute;
+			
+			transform-origin: top left;
+
+			animation-name: bloop;
+			animation-duration: 0.5s;
+			animation-fill-mode: forwards;
+		}
+
+		leaf:after{
+			content: "";
+			position: absolute;
+			width: 100px;
+			height: 100px;
+			background: #493972;
+			transform: rotate(-45deg);
+			border-radius: 0px 50px 0px 50px;
+			transform-origin: top left;
+		}
+
+		.active{
+			opacity: 1;
+		}
+
+		leaf[dir="-1"]:after{
+			transform: scaleX(-1) rotate(-45deg);
+		}
+
+		flower{
+			display: block;
+			position: absolute;
+
+			animation-name: bloop;
+			animation-duration: 0.5s;
+			animation-fill-mode: forwards;
+		}
+
+		flower:after{
+			content: "";
+			width: 140px;
+			height: 140px;
+			background: #493972;
+			border-radius: 150px;
+			transform: translate(-50%,-50%);
+			display: block;
+			position: absolute;
+		}
+
+		petal{
+			display: block;
+			position: absolute;
+
+			
+		}
+
+		petal:after{
+			content: "";
+			width: 150px;
+			height: 50px;
+			background: #ff6600;
+			border-radius: 150px;
+			transform: translateY(-50%);
+			display: block;
+			position: absolute;
+		}
+
+		parallax{
+			display: block;
+			position: absolute;
+			left: 0px;
+			bottom: 0px;
+		}
+
+		@keyframes bloop{
+			0%{
+				transform: scale(0.3);
+			}
+
+			80%{
+				transform: scale(1.1);
+			}
+
+			100%{
+				transform: scale(1);
+			}
+		}
+
+	</style>
+	<script type="text/javascript" src="jq.js"></script>
+	<script type="text/javascript">
+
+		$(function(){
+
+			function Sunflower(){
+				
+				let arr = [0];
+				let nLeaf = 0;
+
+				let tx = -5 + Math.random() * 10;
+				let ox = 0;
+				let dir = 1;
+
+				let delayLeaf = 20;
+				let maxLength = 100 + Math.random()*100;
+
+
+
+				let isGrowing = true;
+
+				let $plant = $('hidden plant').clone().appendTo('.fg');
+				this.$plant = $plant;
+
+				
+
+				function grow(){
+					let dx = tx - arr[arr.length-1];
+					if(dx > 0 && ox<1 ) ox += 0.02+Math.random()*0.04;
+					if(dx < 0 && ox>-1 ) ox -= 0.02+Math.random()*0.04;
+					arr.push( arr[arr.length-1] + ox );
+
+					if(arr.length>maxLength){
+						growFlower();
+						isGrowing = false;
+					}
+					else if(delayLeaf-- < 0){
+						growLeaf();
+						delayLeaf = 10 + Math.random()*30;
+					} 
+
+					if( arr[arr.length-1] - tx < 5 && arr[arr.length-1] - tx > -5 ){
+						tx = -10 + Math.random()*20;
+					}
+				}
+
+				function growFlower(){
+
+					let $f = $('<flower>').appendTo($plant).css({left:getX(arr.length-1)+'%',top:getY(arr.length-1)/2+'%'});
+					for( var i = 0; i < 15; i++){
+						$('<petal>').appendTo($f).css({'transform':'rotate('+i*24+'deg)'})
+					}
+						
+				}
+
+				function growLeaf(){
+					nLeaf ++;
+
+					$('<leaf>').appendTo($plant).css({left:getX(arr.length-1)+'%',top:getY(arr.length-1)/2+'%'}).attr('dir',nLeaf&2?1:-1);
+						
+				}
+
+				function getX(i){
+					return (50 + arr[i]);
+				}
+
+				function getY(i) {
+					return (200 - i);
+				}
+
+				this.step = function(){
+					
+					if(isGrowing){
+						grow();
+						let str = '';
+						for(var i in arr) str += (i==0?'M':'L')+getX(i)+' '+getY(i);
+						$plant.find('path').attr('d',str);
+					}
+
+				}
+			}
+
+			let flowers = []
+			function spawnFlower(){
+				let f = new Sunflower();
+				f.$plant.css({
+					'left':-25 + Math.random()*120+'vh',
+					'bottom':(nStep*0.5)+'vh',
+				});
+				flowers.push(f);
+			}
+
+			let scaling = 750/14992;
+			let nStep = 0;
+			function tick(){
+
+				for(let f in flowers) flowers[f].step();
+				
+				nStep ++;
+
+				$('body').css('background-position-y',scaling+70+nStep*0.04+'vw');
+				$('.fg').css('bottom',(-nStep*0.5)+'vh');
+
+				if(nStep%100==1) spawnFlower();
+			}
+
+			setInterval(tick,40);
+		});
+	</script>
+
+</head>
+
+<body>
+	<hidden>
+		<plant>
+			<svg preserveAspectRatio="none" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+			  <d cx="50" cy="50" r="50" />
+			 	 <path stroke-linecap="round" stroke='#493972' stroke-width='8' fill='none' d=''/>
+			</svg>
+		</plant>
+	</hidden>
+	<parallax class='fg'>
+	</parallax>
+</body>
+</html>
